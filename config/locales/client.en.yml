@@ -1,0 +1,17 @@
+en:
+  js:
+    lottery:
+      title: "抽奖活动"
+      create: "创建抽奖"
+      participate: "参与抽奖"
+      status:
+        running: "进行中"
+        finished: "已开奖"
+        cancelled: "已取消"
+      form:
+        activity_name: "活动名称"
+        prize_description: "奖品说明"
+        draw_time: "开奖时间"
+        winner_count: "中奖人数"
+        min_participants: "参与门槛"
+        fallback_strategy: "后备策略"
