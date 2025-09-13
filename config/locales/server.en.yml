@@ -1,0 +1,17 @@
+en:
+  site_settings:
+    lottery_enabled: "启用抽奖插件"
+    lottery_min_participants_global: "全局最低参与人数"
+    lottery_post_lock_delay_minutes: "抽奖帖子锁定延迟（分钟）"
+    lottery_excluded_groups: "排除的用户组"
+    lottery_max_winners_per_draw: "单次抽奖最大中奖人数"
+  
+  admin_js:
+    admin:
+      lottery: "抽奖管理"
+  
+  lottery:
+    errors:
+      invalid_participants: "参与人数不足"
+      invalid_time: "开奖时间必须是将来时间"
+      permission_denied: "权限不足"
