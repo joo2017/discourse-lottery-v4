@@ -1,51 +1,38 @@
-// 完全复用discourse-calendar的初始化模式
+// 基于2025年最新技术的抽奖扩展
 import { withPluginApi } from "discourse/lib/plugin-api";
-import { ajax } from "discourse/lib/ajax";
-import showModal from "discourse/lib/show-modal";
 
 function initializeLottery(api) {
-  // 复用calendar的custom field模式
+  // 直接扩展现有的post attributes（复用calendar模式）
   api.includePostAttributes("lottery");
-  
-  // 复用calendar的composer decorator模式
-  api.decorateComposerEvent("topicCreated", (topic) => {
-    if (topic.lottery) {
-      console.log("抽奖主题已创建:", topic);
-    }
-  });
+  api.includePostAttributes("lottery_participants");
+  api.includePostAttributes("lottery_winners"); 
+  api.includePostAttributes("lottery_status");
 
-  // 复用calendar的post decorator模式  
-  api.decorateWidget("post-contents:after-cooked", (dec) => {
-    const post = dec.attrs;
-    if (post.lottery) {
-      return dec.widget.attach("lottery-display", {
-        post: post,
-        lottery: post.lottery
-      });
-    }
-  });
+  // 使用最新的renderInOutlet API注册抽奖显示组件
+  api.renderInOutlet("post-contents-after-cooked", <template>
+    {{#if @outletArgs.post.lottery}}
+      <LotteryDisplay @post={{@outletArgs.post}} />
+    {{/if}}
+  </template>);
 
-  // 复用calendar的composer button模式
+  // 使用最新的composer toolbar API
   api.addComposerToolbarPopupMenuOption({
-    action: "insertLottery",
-    icon: "dice",
+    action: "showLotteryBuilder",
+    icon: "dice", 
     label: "lottery.composer.add_lottery",
-    condition: "canCreateLottery"
+    condition: () => {
+      return api.getCurrentUser() && 
+             api.getSiteSettings().lottery_enabled;
+    }
   });
 
-  // 复用calendar的action处理模式
+  // 注册action处理器
   api.addComposerToolbarPopupMenuOptionCallbacks({
-    insertLottery() {
-      showModal("create-lottery-modal", {
-        model: {
-          composer: this
-        }
+    showLotteryBuilder(toolbar) {
+      // 使用最新的modal service
+      toolbar.send("showModal", "lottery-builder", {
+        model: { composer: toolbar }
       });
-    },
-    canCreateLottery() {
-      return this.siteSettings.lottery_enabled && 
-             this.currentUser && 
-             this.currentUser.can_create_topic;
     }
   });
 }
@@ -53,6 +40,6 @@ function initializeLottery(api) {
 export default {
   name: "extend-for-lottery",
   initialize() {
-    withPluginApi("0.8.31", initializeLottery);
+    withPluginApi("1.0.0", initializeLottery);
   }
 };
