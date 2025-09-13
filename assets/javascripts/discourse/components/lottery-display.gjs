@@ -1,4 +1,4 @@
-// 2025年最新GJS格式的抽奖显示组件
+// 修正版本 - 移除未导入的helper，使用JavaScript比较
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
@@ -6,7 +6,6 @@ import { inject as service } from "@ember/service";
 import { ajax } from "discourse/lib/ajax";
 import DButton from "discourse/components/d-button";
 import icon from "discourse-common/helpers/d-icon";
-import { htmlSafe } from "@ember/template";
 
 export default class LotteryDisplay extends Component {
   @service currentUser;
@@ -19,7 +18,6 @@ export default class LotteryDisplay extends Component {
 
   constructor() {
     super(...arguments);
-    // 检查当前用户是否已参与
     this.checkParticipation();
   }
 
@@ -54,6 +52,14 @@ export default class LotteryDisplay extends Component {
            !this.participated && 
            this.currentUser.id !== this.args.post.user_id &&
            (this.status === "pending" || this.status === "running");
+  }
+
+  get isFinished() {
+    return this.status === "finished";
+  }
+
+  get hasWinners() {
+    return this.winners && this.winners.length > 0;
   }
 
   get formattedDrawTime() {
@@ -143,9 +149,9 @@ export default class LotteryDisplay extends Component {
         </div>
       {{/if}}
 
-      {{! 中奖结果 }}
-      {{#if (eq this.status "finished")}}
-        {{#if this.winners}}
+      {{! 中奖结果 - 使用getter而非helper }}
+      {{#if this.isFinished}}
+        {{#if this.hasWinners}}
           <div class="winners-section">
             <h4>🎉 中奖名单</h4>
             <div class="winners-list">
