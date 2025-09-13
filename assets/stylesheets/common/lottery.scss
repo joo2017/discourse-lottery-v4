@@ -1,0 +1,72 @@
+// 复用calendar的样式结构
+.lottery-container {
+  border: 1px solid var(--primary-low);
+  border-radius: 6px;
+  padding: 1em;
+  margin: 1em 0;
+  background: var(--secondary);
+
+  .lottery-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1em;
+    
+    .lottery-icon {
+      margin-right: 0.5em;
+      color: var(--primary);
+    }
+    
+    .lottery-title {
+      font-weight: bold;
+      font-size: 1.1em;
+    }
+  }
+
+  .lottery-status {
+    padding: 0.5em;
+    border-radius: 4px;
+    text-align: center;
+    
+    &.running {
+      background: var(--success-low);
+      color: var(--success);
+    }
+    
+    &.finished {
+      background: var(--primary-low);
+      color: var(--primary);
+    }
+    
+    &.cancelled {
+      background: var(--danger-low);
+      color: var(--danger);
+    }
+  }
+
+  .lottery-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1em;
+    margin: 1em 0;
+  }
+
+  .participate-button {
+    background: var(--tertiary);
+    color: var(--secondary);
+    border: none;
+    padding: 0.75em 1.5em;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    
+    &:hover {
+      background: var(--tertiary-hover);
+    }
+    
+    &:disabled {
+      background: var(--primary-low);
+      color: var(--primary-medium);
+      cursor: not-allowed;
+    }
+  }
+}
