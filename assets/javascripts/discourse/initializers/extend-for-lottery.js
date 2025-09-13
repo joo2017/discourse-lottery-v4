@@ -1,45 +1,50 @@
-// 基于2025年最新技术的抽奖扩展
+// 直接扩展核心DiscoursePostEvent而非重建
 import { withPluginApi } from "discourse/lib/plugin-api";
 
-function initializeLottery(api) {
-  // 直接扩展现有的post attributes（复用calendar模式）
-  api.includePostAttributes("lottery");
-  api.includePostAttributes("lottery_participants");
-  api.includePostAttributes("lottery_winners"); 
-  api.includePostAttributes("lottery_status");
-
-  // 使用最新的renderInOutlet API注册抽奖显示组件
-  api.renderInOutlet("post-contents-after-cooked", <template>
-    {{#if @outletArgs.post.lottery}}
-      <LotteryDisplay @post={{@outletArgs.post}} />
-    {{/if}}
-  </template>);
-
-  // 使用最新的composer toolbar API
-  api.addComposerToolbarPopupMenuOption({
-    action: "showLotteryBuilder",
-    icon: "dice", 
-    label: "lottery.composer.add_lottery",
-    condition: () => {
-      return api.getCurrentUser() && 
-             api.getSiteSettings().lottery_enabled;
+function extendPostEventForLottery(api) {
+  // 扩展现有的post-event serializer
+  api.modifyClass("model:post", {
+    get isLottery() {
+      return this.custom_fields?.lottery;
+    },
+    
+    get lotteryData() {
+      return this.custom_fields?.lottery;
     }
   });
 
-  // 注册action处理器
-  api.addComposerToolbarPopupMenuOptionCallbacks({
-    showLotteryBuilder(toolbar) {
-      // 使用最新的modal service
-      toolbar.send("showModal", "lottery-builder", {
-        model: { composer: toolbar }
-      });
+  // 扩展现有的post-event显示
+  api.renderInOutlet("post-event-after", <template>
+    {{#if @outletArgs.post.isLottery}}
+      <div class="lottery-extension">
+        <h4>🎲 抽奖活动</h4>
+        <div class="lottery-info">
+          <p><strong>活动：</strong>{{@outletArgs.post.lotteryData.activity_name}}</p>
+          <p><strong>奖品：</strong>{{@outletArgs.post.lotteryData.prize_description}}</p>
+        </div>
+      </div>
+    {{/if}}
+  </template>);
+
+  // 扩展现有的event creation flow
+  api.modifyClass("controller:composer", {
+    actions: {
+      createLotteryEvent() {
+        // 复用现有的post-event创建流程
+        this.send("showModal", "discourse-post-event-builder", {
+          model: { 
+            isLottery: true,
+            composer: this 
+          }
+        });
+      }
     }
   });
 }
 
 export default {
-  name: "extend-for-lottery",
+  name: "extend-post-event-for-lottery", 
   initialize() {
-    withPluginApi("1.0.0", initializeLottery);
+    withPluginApi("1.0.0", extendPostEventForLottery);
   }
 };
