@@ -1,4 +1,4 @@
-// 2025年最新GJS格式的抽奖构建器
+// 修正版本 - 移除eq helper，使用JavaScript getter
 import Component from "@glimmer/component";
 import { tracked } from "@glimmer/tracking";
 import { action } from "@ember/object";
@@ -52,6 +52,10 @@ export default class LotteryBuilder extends Component {
 
   get lotteryType() {
     return this.specifiedFloors?.trim() ? "specified" : "random";
+  }
+
+  get isSpecifiedType() {
+    return this.lotteryType === "specified";
   }
 
   get finalWinnerCount() {
@@ -227,7 +231,7 @@ ${data.additional_notes ? `notes="${data.additional_notes}"` : ''}
         {{#if this.lotteryType}}
           <div class="lottery-preview">
             <strong>抽奖方式：</strong>
-            {{#if (eq this.lotteryType "specified")}}
+            {{#if this.isSpecifiedType}}
               指定楼层抽奖（{{this.finalWinnerCount}}个中奖楼层）
             {{else}}
               随机抽奖（{{this.finalWinnerCount}}个中奖者）
