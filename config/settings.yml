@@ -1,0 +1,23 @@
+# 复用calendar的settings模式，创建抽奖相关设置
+plugins:
+  lottery_enabled:
+    default: false
+    client: true
+  lottery_min_participants_global:
+    default: 5
+    type: integer
+    min: 1
+    max: 1000
+  lottery_post_lock_delay_minutes:
+    default: 60
+    type: integer
+    min: 0
+    max: 10080
+  lottery_excluded_groups:
+    type: group_list
+    default: "staff|admins"
+  lottery_max_winners_per_draw:
+    default: 10
+    type: integer
+    min: 1
+    max: 50
