@@ -4,8 +4,6 @@
 # authors: Discourse Community
 # url: https://github.com/discourse/discourse-lottery-v4
 
-gem "securerandom", "0.2.0", require_name: "securerandom"
-
 enabled_site_setting :lottery_enabled
 
 after_initialize do
@@ -28,11 +26,6 @@ after_initialize do
     end
   end
 
-  # 复用calendar的DiscoursePostEvent模式，创建DiscourseLottery模块
-  module ::DiscourseLottery
-    # 预留给后续的核心类
-  end
-
   # 注册自定义字段（完全复用calendar的模式）
   register_post_custom_field_type(DiscourseLottery::LOTTERY_CUSTOM_FIELD, :json)
   TopicView.default_post_custom_fields << DiscourseLottery::LOTTERY_CUSTOM_FIELD
@@ -48,26 +41,19 @@ after_initialize do
 
   # 注册样式表（复用calendar的asset注册模式）
   register_asset "stylesheets/common/lottery.scss"
-  register_asset "stylesheets/desktop/lottery.scss", :desktop
-  register_asset "stylesheets/mobile/lottery.scss", :mobile
-
-  # 预留job文件加载（模仿calendar的require_relative结构）
-  # require_relative "jobs/scheduled/execute_lottery_draw"
-  # require_relative "jobs/scheduled/lock_lottery_post"
-  
-  # 预留lib文件加载（模仿calendar的lib结构）
-  # require_relative "lib/lottery_creator"
-  # require_relative "lib/lottery_manager"
-  # require_relative "lib/lottery_validator"
 
   # 事件监听（复用calendar的事件监听模式）
   on(:post_created) do |post, opts, user|
     # 预留：检查是否为抽奖帖子
-    # LotteryCreator.new(post, user).process if post.custom_fields[DiscourseLottery::LOTTERY_CUSTOM_FIELD]
+    if post.custom_fields[DiscourseLottery::LOTTERY_CUSTOM_FIELD]
+      Rails.logger.info "检测到抽奖帖子创建: #{post.id}"
+    end
   end
 
   on(:post_edited) do |post, topic_changed, user|
     # 预留：处理抽奖编辑
-    # LotteryCreator.new(post, user).update if post.custom_fields[DiscourseLottery::LOTTERY_CUSTOM_FIELD]
+    if post.custom_fields[DiscourseLottery::LOTTERY_CUSTOM_FIELD]
+      Rails.logger.info "检测到抽奖帖子编辑: #{post.id}"
+    end
   end
 end
